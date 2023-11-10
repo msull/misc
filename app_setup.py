@@ -13,6 +13,12 @@ class Paths:
     add_to_path = [local_src]
 
 
+for path in Paths.add_to_path:
+    this_path = str(path.absolute())
+    if this_path not in sys.path:
+        sys.path.insert(0, this_path)
+
+
 def set_page_config(
     page_title: Optional[str] = None,
     page_icon: Optional[PageIcon] = None,
@@ -20,7 +26,4 @@ def set_page_config(
     initial_sidebar_state: InitialSideBarState = "auto",
     menu_items: Optional[MenuItems] = None,
 ):
-    for path in Paths.add_to_path:
-        sys.path.insert(0, str(path.absolute()))
-
     st.set_page_config(page_title, page_icon, layout, initial_sidebar_state, menu_items)

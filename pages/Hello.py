@@ -1,11 +1,8 @@
-import streamlit as st
-
-from app_setup import set_page_config
+from app_setup import set_page_config, st
+from misc_shared.models import Example
+from misc_shared.storage import get_s3_client
 
 set_page_config("Hello")
-
-from misc_shared.models import Example  # noqa: E402
-from misc_shared.storage import get_s3_client  # noqa: E402
 
 client = get_s3_client()
 
