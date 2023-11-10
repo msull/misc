@@ -31,6 +31,16 @@ def compile_requirements(c, install=False, upgrade=False):
 
 
 @task
+def setup_local_resources(c: Context):
+    with c.cd(Paths.repo_root):
+        for file in (Paths.infra / "dynamodb_tables").iterdir():
+            c.run(
+                f"AWS_REGION=us-west-2 AWS_DEFAULT_REGION=us-west-2 AWS_ACCESS_KEY_ID=unused AWS_SECRET_ACCESS_KEY=unused "
+                f"aws dynamodb create-table --cli-input-yaml file://{file} --endpoint-url http://localhost:8000"
+            )
+
+
+@task
 def launch_dynamodb_local(c: Context, create_tables=False, clear_data=False):
     """Run local dynamodb, with options to wipe data and create a table with required indices."""
     with c.cd(Paths.repo_root):
@@ -45,7 +55,7 @@ def launch_dynamodb_local(c: Context, create_tables=False, clear_data=False):
             sleep(2)
             for file in (Paths.infra / "dynamodb_tables").iterdir():
                 c.run(
-                    f"AWS_REGION=us-east-1 AWS_ACCESS_KEY_ID=unused AWS_SECRET_ACCESS_KEY=unused "
+                    f"AWS_REGION=us-west-2 AWS_DEFAULT_REGION=us-west-2 AWS_ACCESS_KEY_ID=unused AWS_SECRET_ACCESS_KEY=unused "
                     f"aws dynamodb create-table --cli-input-yaml file://{file} --endpoint-url http://localhost:8000"
                 )
 
