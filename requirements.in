@@ -9,4 +9,5 @@ pillow
 pydantic>2
 pydantic-settings
 scipy
+simplesingletable
 streamlit
