@@ -1,0 +1,8 @@
+pdbpp
+pytest
+PyYaml
+pip-tools
+invoke
+watchdog
+boto3-stubs[essential,cognito-idp,sns]
+-c requirements.txt

@@ -1,0 +1,12 @@
+boto3
+chime
+diskcache
+logzero
+numpy
+openai
+pandas
+pillow
+pydantic>2
+pydantic-settings
+scipy
+streamlit
