@@ -20,6 +20,7 @@ for path in Paths.add_to_path:
 
 
 def set_page_config(
+    requires_auth: bool = False,
     page_title: Optional[str] = None,
     page_icon: Optional[PageIcon] = None,
     layout: Layout = "centered",

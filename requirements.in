@@ -6,8 +6,10 @@ numpy
 openai
 pandas
 pillow
-pydantic>2
 pydantic-settings
+pydantic>2
 scipy
 simplesingletable
 streamlit
+streamlit-option-menu
+streamlit_authenticator
