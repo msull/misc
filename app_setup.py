@@ -32,8 +32,6 @@ def set_page_config(
 
     st.set_page_config(page_title, page_icon, layout, initial_sidebar_state, menu_items)
     authenticator = create_authenticator()
-    st.write(authenticator.credentials)
-    st.write(authenticator.preauthorized)
 
     if requires_auth:
         name, authentication_status, username = authenticator.login("Login", "main")
