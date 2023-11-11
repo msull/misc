@@ -1,5 +1,6 @@
 boto3
 chime
+cryptography
 diskcache
 logzero
 numpy
