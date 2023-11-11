@@ -2,7 +2,7 @@ from app_setup import set_page_config, st
 from misc_shared.models import Example
 from misc_shared.storage import get_s3_client
 
-set_page_config("Hello")
+set_page_config(requires_auth=True, page_title="Hello")
 
 client = get_s3_client()
 
