@@ -25,7 +25,7 @@ def main():
         ttl_attribute_name="ttl",
     )
 
-    session: GemmaPageSettings = session_manager.init_session(expiration=timedelta(minutes=10))
+    session: GemmaPageSettings = session_manager.init_session(expiration=timedelta(seconds=30))
     session.some_setting = "Updated test"
     session_manager.persist_session(session)
 
@@ -51,7 +51,7 @@ def main():
 
 
 def render_chat(session: GemmaPageSettings):
-    st.write(f"Session exires in {session.expires_in}")
+    st.write(f"Session {session.expires_in}.")
 
 
 def render_docs(session: GemmaPageSettings):

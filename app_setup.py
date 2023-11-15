@@ -27,10 +27,46 @@ def set_page_config(
     layout: Layout = "centered",
     initial_sidebar_state: InitialSideBarState = "auto",
     menu_items: Optional[MenuItems] = None,
+    hide_default_streamlit_elements: bool = True,
 ):
     from misc_shared.auth_helpers import LoginRequired, create_authenticator
 
     st.set_page_config(page_title, page_icon, layout, initial_sidebar_state, menu_items)
+
+    hide_streamlit_style = """
+                    <style>
+                    div[data-testid="stToolbar"] {
+                    visibility: hidden;
+                    height: 0%;
+                    position: fixed;
+                    }
+                    div[data-testid="stDecoration"] {
+                    visibility: hidden;
+                    height: 0%;
+                    position: fixed;
+                    }
+                    div[data-testid="stStatusWidget"] {
+                    visibility: hidden;
+                    height: 0%;
+                    position: fixed;
+                    }
+                    #MainMenu {
+                    visibility: hidden;
+                    height: 0%;
+                    }
+                    header {
+                    visibility: hidden;
+                    height: 0%;
+                    }
+                    footer {
+                    visibility: hidden;
+                    height: 0%;
+                    }
+                    </style>
+                    """
+    if hide_default_streamlit_elements:
+        st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
     authenticator = create_authenticator()
 
     if requires_auth:

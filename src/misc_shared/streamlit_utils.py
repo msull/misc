@@ -27,7 +27,16 @@ class StreamlitSessionBase(BaseModel):
     @property
     def expires_in(self) -> str:
         if self.expires_at:
-            return precisedelta(datetime.utcnow() - datetime.fromtimestamp(float(self.expires_at)))
+            now = datetime.utcnow()
+            expiration = datetime.fromtimestamp(float(self.expires_at))
+
+            time_remaining = expiration - now
+            st.help(time_remaining)
+            if time_remaining.total_seconds() < 0:
+                return f"expired {precisedelta(time_remaining)} ago"
+            else:
+                return f"expires in {precisedelta(time_remaining)}"
+
         else:
             return ""
 
