@@ -30,13 +30,24 @@ def compile_requirements(c, install=True, upgrade=False):
 
 
 @task
-def setup_local_resources(c: Context):
+def setup_local_resources(c: Context, dynamodb=True, buckets=True):
     # assumes user has already run docker-compose up
     with c.cd(Paths.repo_root):
-        for file in (Paths.infra / "dynamodb_tables").iterdir():
+        if dynamodb:
+            for file in (Paths.infra / "dynamodb_tables").iterdir():
+                c.run(
+                    f"AWS_REGION=us-west-2 AWS_DEFAULT_REGION=us-west-2 AWS_ACCESS_KEY_ID=unused AWS_SECRET_ACCESS_KEY=unused "
+                    f"aws dynamodb create-table --cli-input-yaml file://{file} --endpoint-url http://localhost:8000"
+                )
+
+        if buckets:
             c.run(
-                f"AWS_REGION=us-west-2 AWS_DEFAULT_REGION=us-west-2 AWS_ACCESS_KEY_ID=unused AWS_SECRET_ACCESS_KEY=unused "
-                f"aws dynamodb create-table --cli-input-yaml file://{file} --endpoint-url http://localhost:8000"
+                "AWS_REGION=us-west-2 AWS_DEFAULT_REGION=us-west-2 AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin "
+                "aws s3 mb s3://miscprivate --endpoint-url http://localhost:9000"
+            )
+            c.run(
+                "AWS_REGION=us-west-2 AWS_DEFAULT_REGION=us-west-2 AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin "
+                "aws s3 mb s3://miscpublic --endpoint-url http://localhost:9000"
             )
 
 
