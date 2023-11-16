@@ -11,6 +11,7 @@ pydantic-settings
 pydantic>2
 scipy
 simplesingletable>=1.6
+supersullytools>=0.2.1
 streamlit
 streamlit-option-menu
 streamlit_authenticator

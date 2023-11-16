@@ -7,7 +7,7 @@ from streamlit_option_menu import option_menu
 
 from app_setup import set_page_config, st
 from misc_shared.storage import get_memory
-from misc_shared.streamlit_utils import MemorySessionManager, StreamlitSessionBase
+from supersullytools.streamlit.sessions import MemorySessionManager, StreamlitSessionBase
 
 set_page_config(requires_auth=True, page_title="Hello")
 
