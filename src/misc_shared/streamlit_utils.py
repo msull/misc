@@ -108,6 +108,7 @@ class SessionManagerInterface(ABC, Generic[SessionType]):
             session = self.get_session(query_session)
             if not session:
                 self.logger.warning("No session matching query param found")
+                st.experimental_set_query_params(s="")
 
         if not session:
             self.logger.info(f"Starting new session {datakey=}")

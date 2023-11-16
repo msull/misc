@@ -69,7 +69,10 @@ def render_debug(session: GemmaPageSettings, memory, session_manager):
     st.write(f"Session {session.expires_in}.")
     st.subheader("DB Session Dump")
     db_session = session_manager._get_db_session(session.session_id)
-    st.code(db_session.model_dump_json(indent=2, exclude={"session"}))
+    if db_session:
+        st.code(db_session.model_dump_json(indent=2, exclude={"session"}))
+    else:
+        st.write("Session not yet saved")
 
     st.subheader("Session Dump")
     st.code(session.model_dump_json(indent=2))
