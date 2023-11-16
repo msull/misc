@@ -10,7 +10,8 @@ from typing import ClassVar, Generic, Optional, Type, TypeVar
 import streamlit as st
 from humanize import precisedelta
 from pydantic import BaseModel, ConfigDict, Field
-from simplesingletable import DynamoDBMemory, DynamodbResource, DynamodbVersionedResource
+from simplesingletable import DynamoDbMemory, DynamoDbResource, DynamoDbVersionedResource
+from simplesingletable.models import ResourceConfig
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -72,6 +73,10 @@ class SessionManagerInterface(ABC, Generic[SessionType]):
     def get_session_model(self) -> Type[SessionType]:
         pass
 
+    @abstractmethod
+    def get_query_param_name(self) -> str:
+        pass
+
     def set_session_expiration(self, session: SessionType, expiration: datetime | timedelta):
         match expiration:
             case datetime():
@@ -87,7 +92,7 @@ class SessionManagerInterface(ABC, Generic[SessionType]):
 
     def init_session(self, expiration: Optional[datetime | timedelta] = None) -> SessionType:
         datakey = self.get_session_model().__name__
-        query_session = st.experimental_get_query_params().get("s")
+        query_session = st.experimental_get_query_params().get(self.get_query_param_name())
         if query_session:
             query_session = query_session[0]
 
@@ -108,7 +113,9 @@ class SessionManagerInterface(ABC, Generic[SessionType]):
             session = self.get_session(query_session)
             if not session:
                 self.logger.warning("No session matching query param found")
-                st.experimental_set_query_params(s="")
+                existing_params = st.experimental_get_query_params()
+                existing_params.pop(self.get_query_param_name())
+                st.experimental_set_query_params(**existing_params)
 
         if not session:
             self.logger.info(f"Starting new session {datakey=}")
@@ -141,11 +148,16 @@ class MemorySessionManager(SessionManagerInterface[SessionType]):
     def __init__(
         self,
         model_type: Type[SessionType],
-        memory: DynamoDBMemory,
+        memory: DynamoDbMemory,
         logger,
         ttl_attribute_name: Optional[str] = None,
+        query_param_name: Optional[str] = None,
         enable_versioning: bool = False,
     ):
+        if query_param_name is None:
+            query_param_name = model_type.__name__
+
+        self._query_param_name = query_param_name
         self.logger = logger
         self.enable_versioning = enable_versioning
         self._memory = memory
@@ -157,8 +169,9 @@ class MemorySessionManager(SessionManagerInterface[SessionType]):
 
         if enable_versioning:
 
-            class DbSession(DynamodbVersionedResource):
+            class DbSession(DynamoDbVersionedResource):
                 session: model_type
+                model_config: ClassVar[ConfigDict] = ConfigDict(extra="allow")
 
                 def to_dynamodb_item(self, v0_object: bool = False) -> dict:
                     base = super().to_dynamodb_item(v0_object)
@@ -168,10 +181,10 @@ class MemorySessionManager(SessionManagerInterface[SessionType]):
 
         else:
 
-            class DbSession(DynamodbResource):
+            class DbSession(DynamoDbResource):
                 session: model_type
-
                 model_config: ClassVar[ConfigDict] = ConfigDict(extra="allow")
+                resource_config = ResourceConfig(compress_data=True)
 
                 def to_dynamodb_item(self) -> dict:
                     base = super().to_dynamodb_item()
@@ -184,19 +197,25 @@ class MemorySessionManager(SessionManagerInterface[SessionType]):
     def get_session_model(self) -> Type[SessionType]:
         return self.model_type
 
+    def get_query_param_name(self) -> str:
+        return self._query_param_name
+
     def persist_session(self, session: SessionType):
-        existing = self._get_db_session(session.session_id)
+        existing = self.get_db_session(session.session_id)
         if not existing:
             self._memory.create_new(self._db_model, data={"session": session}, override_id=session.session_id)
         else:
             if existing.session != session:
                 self._memory.update_existing(existing, update_obj={"session": session})
-        st.experimental_set_query_params(s=session.session_id)
+        existing_params = st.experimental_get_query_params()
+        existing_params[self.get_query_param_name()] = session.session_id
+        st.experimental_set_query_params(**existing_params)
 
     def get_session(self, session_id: str) -> Optional[SessionType]:
         self.logger.info("Getting session from database")
-        if db_session := self._get_db_session(session_id):
+        if db_session := self.get_db_session(session_id):
             return db_session.session
 
-    def _get_db_session(self, session_id: str):
+    # not part of the interface
+    def get_db_session(self, session_id: str):
         return self._memory.get_existing(session_id, data_class=self._db_model)

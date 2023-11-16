@@ -10,7 +10,7 @@ pillow
 pydantic-settings
 pydantic>2
 scipy
-simplesingletable
+simplesingletable>=1.6
 streamlit
 streamlit-option-menu
 streamlit_authenticator

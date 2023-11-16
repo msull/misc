@@ -1,6 +1,7 @@
 import json
 from datetime import timedelta
 
+import openai
 from logzero import logger
 from streamlit_option_menu import option_menu
 
@@ -17,6 +18,14 @@ class GemmaPageSettings(StreamlitSessionBase):
 
 
 def main():
+    selected = option_menu(
+        None,
+        ["Chat", "Docs", "Debug"],
+        icons=["chat", "cloud-upload", "list-task"],
+        menu_icon="cast",
+        default_index=0,
+        orientation="horizontal",
+    )
     memory = get_memory()
     session_manager = MemorySessionManager(
         memory=memory,
@@ -29,14 +38,7 @@ def main():
     session: GemmaPageSettings = session_manager.init_session(expiration=timedelta(days=2))
 
     # st.write(memory.dynamodb_table.scan())
-    selected = option_menu(
-        None,
-        ["Chat", "Docs", "Debug"],
-        icons=["chat", "cloud-upload", "list-task"],
-        menu_icon="cast",
-        default_index=0,
-        orientation="horizontal",
-    )
+
     match selected:
         case "Chat":
             render_chat(session)
@@ -49,8 +51,13 @@ def main():
             raise ValueError(f"Unknown option selected {selected=}")
 
 
+@st.cache_data()
+def get_gpt_models():
+    return sorted(x.id for x in openai.models.list() if "gpt" in x.id)
+
+
 def render_chat(session: GemmaPageSettings):
-    st.write(f"Session {session.expires_in}.")
+    pass
 
 
 def render_docs(session: GemmaPageSettings):
@@ -68,7 +75,7 @@ def render_debug(session: GemmaPageSettings, memory, session_manager):
 
     st.write(f"Session {session.expires_in}.")
     st.subheader("DB Session Dump")
-    db_session = session_manager._get_db_session(session.session_id)
+    db_session = session_manager.get_db_session(session.session_id)
     if db_session:
         st.code(db_session.model_dump_json(indent=2, exclude={"session"}))
     else:
@@ -82,6 +89,10 @@ def render_debug(session: GemmaPageSettings, memory, session_manager):
 
     st.subheader("Streamlit session state")
     st.code(json.dumps(st.session_state.to_dict(), indent=2, default=str))
+
+    if st.button("Scan Table"):
+        items = memory.dynamodb_table.scan().get("Items")
+        st.write(list(items))
 
 
 if __name__ == "__main__":
