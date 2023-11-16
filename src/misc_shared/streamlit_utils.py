@@ -31,7 +31,6 @@ class StreamlitSessionBase(BaseModel):
             expiration = datetime.fromtimestamp(float(self.expires_at))
 
             time_remaining = expiration - now
-            st.help(time_remaining)
             if time_remaining.total_seconds() < 0:
                 return f"expired {precisedelta(time_remaining)} ago"
             else:
@@ -73,6 +72,19 @@ class SessionManagerInterface(ABC, Generic[SessionType]):
     def get_session_model(self) -> Type[SessionType]:
         pass
 
+    def set_session_expiration(self, session: SessionType, expiration: datetime | timedelta):
+        match expiration:
+            case datetime():
+                expires_at = expiration.timestamp()
+            case timedelta():
+                expires_at = (datetime.utcnow() + expiration).timestamp()
+            case _:
+                raise ValueError("Invalid type for expiration")
+        expires_at = Decimal(str(expires_at).split(".")[0])
+        session.expires_at = expires_at
+        self.persist_session(session)
+        return session
+
     def init_session(self, expiration: Optional[datetime | timedelta] = None) -> SessionType:
         datakey = self.get_session_model().__name__
         query_session = st.experimental_get_query_params().get("s")
@@ -107,7 +119,6 @@ class SessionManagerInterface(ABC, Generic[SessionType]):
                         expires_at = (datetime.utcnow() + expiration).timestamp()
                     case _:
                         raise ValueError("Invalid type for expiration")
-                st.write(expires_at)
                 session = self.get_session_model()(expires_at=expires_at)
             else:
                 session = self.get_session_model()()
