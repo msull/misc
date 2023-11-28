@@ -65,11 +65,6 @@ def main():
                 stream=True,
                 seed=seed,
             ):
-                # for response in openai.completions.create(model='')
-                #     model=st.session_data_state["openai_model"],
-                #     messages=[{"role": m["role"], "content": m["content"]} for m in session_data.messages],
-                #     stream=True,
-                # ):
                 full_response += response.choices[0].delta.content or ""
                 message_placeholder.markdown(full_response + "▌")
             message_placeholder.markdown(full_response)
