@@ -27,7 +27,7 @@ def main():
     input_cols = iter(st.columns(4))
 
     with next(input_cols):
-        risk_free_rate = st.number_input("Risk Free Rate")  # this value is an integer
+        risk_free_rate = st.number_input("Risk Free Rate")  # this returns a float
     with next(input_cols):
         beta = st.number_input("beta")
     with next(input_cols):
@@ -39,13 +39,12 @@ def main():
     input_cols = iter(st.columns(4))
 
     with next(input_cols):
-        tax_rate = st.number_input("tax_rate")  # this value is an integer
+        tax_rate = st.number_input("tax_rate")
     with next(input_cols):
         total_debt = st.number_input("total_debt")
     with next(input_cols):
         total_equity = st.number_input("total_equity")
 
-    inputs = [risk_free_rate, beta, market_risk_premium, cost_of_debt, tax_rate, total_debt, total_equity]
     output = f"""
     * risk_free_rate = {risk_free_rate}
     * beta = {beta}
