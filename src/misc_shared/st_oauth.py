@@ -58,7 +58,8 @@ def show_auth_link(config, label):
     # if st.experimental_get_query_params():
     #     qpcache = qparms_cache(state_parameter)
     #     qpcache = st.experimental_get_query_params()
-    st.markdown(f'<a href="{request_url}" onclick="event.stopPropagation();" target="_self">{label}</a>', unsafe_allow_html=True)
+    st.markdown(f'<a href="http://asdfdas.blargasdfasdf.com" target="_blank">Test</a>', unsafe_allow_html=True)
+    st.markdown(f'<a href="{request_url}" target="_self">{label}</a>', unsafe_allow_html=True)
     st.stop()
 
 
