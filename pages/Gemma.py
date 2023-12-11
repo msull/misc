@@ -4,10 +4,10 @@ from datetime import timedelta
 import openai
 from logzero import logger
 from streamlit_option_menu import option_menu
+from supersullytools.streamlit.sessions import MemorySessionManager, StreamlitSessionBase
 
 from app_setup import set_page_config, st
 from misc_shared.storage import get_memory
-from supersullytools.streamlit.sessions import MemorySessionManager, StreamlitSessionBase
 
 set_page_config(requires_auth=True, page_title="Hello")
 

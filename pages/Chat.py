@@ -3,11 +3,11 @@ from datetime import timedelta
 import openai
 from logzero import logger
 from pydantic import Field
+from supersullytools.openai.chat_session import ChatSession
+from supersullytools.streamlit.sessions import MemorySessionManager, StreamlitSessionBase
 
 from app_setup import set_page_config, st
 from misc_shared.storage import get_memory
-from supersullytools.streamlit.sessions import MemorySessionManager, StreamlitSessionBase
-from supersullytools.openai.chat_session import ChatSession
 
 set_page_config(requires_auth=True, page_title="Hello")
 
